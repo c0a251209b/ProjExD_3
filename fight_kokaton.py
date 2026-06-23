@@ -165,6 +165,33 @@ class Score:
         screen.blit(self.img, self.rct) 
 
 
+class Explosion:
+    """
+    爆発に関するクラス
+    """
+    def __init__(self, bomb: Bomb, life: int):
+        img = pg.image.load("fig/explosion.gif")
+
+        self.imgs = [
+            img,
+            pg.transform.flip(img, True, True)
+        ]
+
+        self.img = self.imgs[0]
+        self.rct = self.img.get_rect()
+        self.rct.center = bomb.rct.center
+
+        self.life = life
+
+    def update(self, screen: pg.Surface):
+        self.life -= 1
+
+        self.img = self.imgs[(self.life//5) % 2]
+
+        screen.blit(self.img, self.rct)
+
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -179,6 +206,8 @@ def main():
     
     beams = []  # ゲーム初期化時にはビームは存在しない
     score = Score()
+    explosions = []
+    
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -213,12 +242,14 @@ def main():
                     bird.change_img(6, screen)
                     beams[j] = None
                     bombs[i] = None
+                    explosions.append(Explosion(bomb, 50))
                     score.score += 1
                     break
         bombs = [bomb for bomb in bombs if bomb is not None]
         beams = [beam for beam in beams if beam is not None]
         beams = [beam for beam in beams
          if check_bound(beam.rct) == (True, True)]
+        explosions = [ex for ex in explosions if ex.life > 0]
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -226,6 +257,8 @@ def main():
             beam.update(screen)   
         for bomb in bombs:
             bomb.update(screen)
+        for ex in explosions:
+            ex.update(screen)
         score.update(screen)
         pg.display.update()
         tmr += 1
