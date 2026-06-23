@@ -174,6 +174,7 @@ class Score:
 class Explosion:
     """
     爆発に関するクラス
+    Explosionメソッドの追加
     """
     def __init__(self, bomb: Bomb, life: int):
         img = pg.image.load("fig/explosion.gif")
